@@ -72,8 +72,33 @@ def load_player_historical_advanced_stats(year):
     else:
         print("Failed to load player historical advanced stats: No connection to database")
 
-# for year in range(2021, 2025):
-#     load_player_historical_stats(year)
+# Outcome = 0 (waived), 1 (same team), 2 (traded)
+def load_player_end_of_season_outcome():
+    conn = connect()
+    if conn:
+        cursor = conn.cursor()
+        update_query = f"""
+            UPDATE player_stats ps1
+            SET outcome = CASE
+                WHEN NOT EXISTS (SELECT 1 FROM player_stats ps2 WHERE ps1.playerid = ps2.playerid AND ps2.season = ps1.season + 1) THEN 0
+                WHEN ps1.team = (SELECT team FROM player_stats ps2 WHERE ps1.playerid = ps2.playerid AND ps2.season = ps1.season + 1) THEN 1
+                ELSE 2
+            END
+        """
+        try:
+            cursor.execute(update_query)
+            conn.commit()
+        except psycopg2.Error as e:
+            print(f"Error updating player end of season outcome: {e}")
+            return
+        cursor.close()
+        close_connection(conn)
+        print(f"Player end of season outcome updated successfully")
+    else:
+        print("Failed to load player end of season outcome: No connection to database")
 
-for year in range(2022, 2025):
-    load_player_historical_advanced_stats(year)
+
+# load_player_historical_stats(2025)
+# load_player_historical_advanced_stats(2025)
+# load_player_end_of_season_outcome()
+
