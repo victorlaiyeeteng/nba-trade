@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
-from src.db.setup_db import connect, close_connection
+from src.db import connect, close_connection
 import requests
 
 load_dotenv()
@@ -96,7 +96,6 @@ def load_player_end_of_season_outcome():
         print(f"Player end of season outcome updated successfully")
     else:
         print("Failed to load player end of season outcome: No connection to database")
-
 
 # load_player_historical_stats(2025)
 # load_player_historical_advanced_stats(2025)

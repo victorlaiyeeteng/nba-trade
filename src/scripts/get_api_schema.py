@@ -1,5 +1,4 @@
 import requests
-import json
 
 def infer_postgresql_tye(value):
     if isinstance(value, int):
