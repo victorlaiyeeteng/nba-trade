@@ -21,6 +21,9 @@ def load_player_historical_stats(year):
         cursor = conn.cursor()
         for player in data:
             columns = ", ".join(player.keys())
+            team = player.get("team")
+            if team == "TOT" or team == "2TM" or team == "3TM":
+                continue
             insert_query = "INSERT INTO player_stats ({}) VALUES ({}) ON CONFLICT (playerId, season) DO UPDATE SET {}".format(
                     columns,
                     ", ".join(["%s"] * len(player)), 
@@ -53,10 +56,12 @@ def load_player_historical_advanced_stats(year):
         cursor = conn.cursor()
         for player in data:
             player_id = player.get("playerId")
-
+            team = player.get("team")
+            if team == "TOT" or team == "2TM" or team == "3TM":
+                continue
             set_clause = ", ".join([f"{key} = %s" for key in player.keys()])
-            update_query = f"UPDATE player_stats SET {set_clause} WHERE playerid = %s AND season = %s"
-            values = tuple(player.values()) + (player_id, year)
+            update_query = f"UPDATE player_stats SET {set_clause} WHERE playerid = %s AND season = %s AND team = %s"
+            values = tuple(player.values()) + (player_id, year, team)
 
             try:
                 cursor.execute(update_query, values)
@@ -97,7 +102,20 @@ def load_player_end_of_season_outcome():
     else:
         print("Failed to load player end of season outcome: No connection to database")
 
-# load_player_historical_stats(2025)
-# load_player_historical_advanced_stats(2025)
+for year in range(2020, 2026):
+    load_player_historical_stats(year)
+    load_player_historical_advanced_stats(year)
 # load_player_end_of_season_outcome()
 
+# response = requests.get(f"{NBA_PLAYER_API}/playerdatatotals/query?season=2021&pageSize=600")
+# if response.status_code != 200:
+#     raise Exception(f"Failed to fetch data from API: {response.status_code}")
+# data = response.json()
+# total = 0
+# qualified_teams = 0
+# for player in data:
+#     total += 1
+#     if player.get("team")   == "TOT" or player.get("team") == "2TM":
+#         continue
+#     qualified_teams += 1
+# print(total, qualified_teams)

@@ -53,4 +53,15 @@ CREATE TABLE IF NOT EXISTS player_stats (
     vorp REAL,
     minutesPlayed INTEGER,
     PRIMARY KEY (playerId, season)
-)
+);
+
+
+CREATE TABLE IF NOT EXISTS team_stats (
+    id SERIAL PRIMARY KEY,
+    team TEXT,
+    season INTEGER,
+    wins INTEGER, 
+    losses INTEGER, 
+    winPercent REAL, 
+    rank INTEGER
+);

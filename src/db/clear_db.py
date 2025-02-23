@@ -1,4 +1,4 @@
-from db.setup_db import connect, close_connection
+from .setup_db import connect, close_connection
 
 def clear_tables():
     conn = connect()
