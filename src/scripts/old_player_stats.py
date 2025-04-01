@@ -119,3 +119,5 @@ for year in range(2020, 2026):
 #         continue
 #     qualified_teams += 1
 # print(total, qualified_teams)
+
+
