@@ -7,8 +7,6 @@ from datetime import date
 
 basketball_reference_url = "https://www.basketball-reference.com"
 
-#boxscores/?month=3&day=29&year=2025
-
 def scrape_today_games(day=None, month=None, year=None):
     if day is None or month is None or year is None:
         today_date = date.today()
@@ -20,6 +18,7 @@ def scrape_today_games(day=None, month=None, year=None):
     if games_container is None:
         return f"No games on {day}-{month}-{year}"
     games_data = []
+    all_teams_played = set()
     for game in games_container.find_all('div', class_="game_summary"):
         teams_table = game.find('table', class_='teams')
         rows = teams_table.find_all('tr')
@@ -36,10 +35,11 @@ def scrape_today_games(day=None, month=None, year=None):
             'teams': f"{team1_abbr} vs {team2_abbr}",
             'score': f"{score1}-{score2}", 
             'box_score_link': box_score_link, 
-            'players-played': get_players_played(box_score_link, team1_abbr) + get_players_played(box_score_link, team2_abbr)
+            # 'players-played': get_players_played(box_score_link, team1_abbr) + get_players_played(box_score_link, team2_abbr)
         })
+        all_teams_played.update([team1_abbr, team2_abbr])
 
-    return games_data
+    return games_data, all_teams_played
 
 def get_players_played(box_score_link, team_abbrev):
     response = requests.get(box_score_link)
@@ -62,5 +62,5 @@ def get_players_played(box_score_link, team_abbrev):
     
     return player_ids
 
-print(scrape_today_games(29, 3, 2025))
+print(scrape_today_games(30, 3, 2025))
 # print(scrape_today_games())
