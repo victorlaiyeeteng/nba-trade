@@ -10,7 +10,7 @@
 
 <p>technologies</p>
 <ul>
-  <li>postgres</li>
+  <li>supbase - postgres</li>
   <li>github actions - etl pipeline</li>
   <li>aws lambda - backend calls and ml inference</li>
   <li>hosted on netlify</li>
