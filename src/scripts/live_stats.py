@@ -18,18 +18,18 @@ with open(last_update_date_file_path, "r") as f:
     latest_date_str = lines[-1]
 
 latest_date = datetime.strptime(latest_date_str, "%Y-%m-%d %H:%M:%S UTC")
-regular_season_cutoff_date = datetime.strptime("2025-04-15 11:00:00 UTC", "%Y-%m-%d %H:%M:%S UTC")
+regular_season_cutoff_date = datetime.strptime("2025-04-19 11:00:00 UTC", "%Y-%m-%d %H:%M:%S UTC")
 current_date = datetime.utcnow().replace(hour=11, minute=0, second=0, microsecond=0)
 
 missing_dates = []
 d = latest_date + timedelta(days=1)
 conn = False
-if d <= regular_season_cutoff_date:
+if d <= min(regular_season_cutoff_date, current_date):
     conn = connect_supabase()
     if conn:
         cursor = conn.cursor()
         print("Successfully connected to Supabase DB")
-        while d <= regular_season_cutoff_date:
+        while d <= min(regular_season_cutoff_date, current_date):
             year, month, day = d.year, d.month, d.day
             _, teams_played = scrape_today_games(day, month, year)
             print(f"Updating for {year}-{month}-{day}: {len(teams_played)} teams to update...")
@@ -69,8 +69,7 @@ if d <= regular_season_cutoff_date:
 else:
     print("Stats are all up to date (end of regular season)")
 
-
-with open(last_update_date_file_path, "a") as f:
-    for date in missing_dates:
-        f.write("\n" + date)
+if missing_dates:
+    with open(last_update_date_file_path, "w") as f:
+        f.write(missing_dates[-1])
 
