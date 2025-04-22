@@ -15,10 +15,10 @@ def scrape_today_games(day=None, month=None, year=None):
     soup = BeautifulSoup(response.content, 'html.parser')
 
     games_container = soup.find('div', class_="game_summaries")
-    if games_container is None:
-        return f"No games on {day}-{month}-{year}"
     games_data = []
     all_teams_played = set()
+    if games_container is None:
+        return games_data, all_teams_played
     for game in games_container.find_all('div', class_="game_summary"):
         teams_table = game.find('table', class_='teams')
         rows = teams_table.find_all('tr')
@@ -62,5 +62,3 @@ def get_players_played(box_score_link, team_abbrev):
     
     return player_ids
 
-print(scrape_today_games(30, 3, 2025))
-# print(scrape_today_games())

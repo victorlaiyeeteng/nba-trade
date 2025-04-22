@@ -10,6 +10,8 @@ DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 DB_HOST = os.getenv("POSTGRES_HOST")
 DB_PORT = os.getenv("POSTGRES_PORT")
 
+SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL")
+
 def connect():
     try:
         conn = psycopg2.connect(
@@ -31,4 +33,15 @@ def close_connection(conn):
         print("Database connection closed")
     else:
         print("No connection to close")
+
+
+def connect_supabase():
+    return psycopg2.connect(SUPABASE_DB_URL)
+
+def close_connection_supabase(conn):
+    if conn:
+        conn.close()
+        print("Supabase Database connection closed")
+    else:
+        print("No supabase connection to close")
 

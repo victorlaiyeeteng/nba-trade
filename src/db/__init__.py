@@ -1,1 +1,1 @@
-from .setup_db import connect, close_connection
+from .setup_db import connect, close_connection, connect_supabase, close_connection_supabase
