@@ -2,14 +2,16 @@
 
 - [x] past seasons' player stats
 - [x] augment player trade data at e-o-season
-- [ ] real-time update of current player stats
+- [x] real-time update of current player stats
+- [ ] clustering of player stats (player, season)
 - [ ] supervised learning of trade outcome
-- [ ] knn of players with historical players
+- [ ] hosting on netlify
 
 
 <p>technologies</p>
 <ul>
   <li>postgres</li>
-  <li>aws</li>
-  <li>airflow</li>
+  <li>github actions - etl pipeline</li>
+  <li>aws lambda - backend calls and ml inference</li>
+  <li>hosted on netlify</li>
 </ul>
