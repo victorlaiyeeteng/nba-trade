@@ -25,7 +25,7 @@ jobs:
       - name: Run update_stats_db as module
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: python -m src.scripts.update_stats_db
+        run: python -m src.scripts.live_stats
     
       - name: Commit and push log file
         env:
