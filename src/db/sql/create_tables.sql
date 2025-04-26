@@ -34,6 +34,14 @@ CREATE TABLE IF NOT EXISTS player_stats (
     PRIMARY KEY (playerId, season)
 );
 
+CREATE TABLE IF NOT EXISTS trade_outcome (
+    playerId TEXT, 
+    season INTEGER, 
+    outcome INTEGER, 
+    PRIMARY KEY (playerId, season), 
+    FOREIGN KEY (playerId, season) REFERENCES player_stats(playerId, season)
+);
+
 
 CREATE TABLE IF NOT EXISTS team_stats (
     id SERIAL PRIMARY KEY,

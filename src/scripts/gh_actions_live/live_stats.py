@@ -2,14 +2,14 @@ from datetime import datetime, timedelta
 import requests
 import os
 import psycopg2
-from .scrape_live_games import scrape_today_games
+from ..scrape_live_games import scrape_today_games
 from src.db import connect_supabase, close_connection_supabase
 
 
 NBA_API = "http://rest.nbaapi.com/api"
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(current_dir, "../../"))
+project_root = os.path.abspath(os.path.join(current_dir, "../../../"))
 last_update_date_file_path = os.path.join(project_root, "logs", "stats_last_update.txt")
 os.makedirs(os.path.dirname(last_update_date_file_path), exist_ok=True)
 
