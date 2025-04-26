@@ -49,5 +49,5 @@ if conn:
     cursor.close()
     close_connection_supabase(conn)
 else:
-    print("Failed to create tables: No connection to database")
+    print("Failed to update trade outcomes: No connection to database")
 

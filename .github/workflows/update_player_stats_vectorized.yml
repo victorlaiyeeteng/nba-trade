@@ -1,8 +1,8 @@
-name: Update Supabase DB with Player Trade Outcomes
+name: Update Supabase DB with Player Stats Vectorized
 
 on:
   schedule:
-    - cron: '0 0 1 * *'  # Runs 1st day of every month at 00:00:00 UTC
+    - cron: '0 16 * * 1'  # Runs every monday at 16:00:00 UTC
   workflow_dispatch:  
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run live_trade_outcome as module
+      - name: Run live_stats_vectorized as module
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: python -m src.scripts.gh_actions_live.live_trade_outcome
+        run: python -m src.scripts.gh_actions_live.live_stats_vectorized

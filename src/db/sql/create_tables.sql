@@ -42,6 +42,14 @@ CREATE TABLE IF NOT EXISTS trade_outcome (
     FOREIGN KEY (playerId, season) REFERENCES player_stats(playerId, season)
 );
 
+CREATE TABLE IF NOT EXISTS player_stats_vectorized (
+    playerid TEXT,
+    season INTEGER,
+    stat_vector vector(27), -- 27 features
+    PRIMARY KEY (playerId, season),
+    FOREIGN KEY (playerId, season) REFERENCES player_stats(playerId, season) ON DELETE CASCADE
+);
+
 
 CREATE TABLE IF NOT EXISTS team_stats (
     id SERIAL PRIMARY KEY,

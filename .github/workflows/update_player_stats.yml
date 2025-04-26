@@ -22,7 +22,7 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run update_stats_db as module
+      - name: Run live_stats as module
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python -m src.scripts.gh_actions_live.live_stats
