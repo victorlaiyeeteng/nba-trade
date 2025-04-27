@@ -18,10 +18,10 @@ def find_similar_players(playerid, season, top_k=5):
         cursor.execute("""
             SELECT playerid, season, 1 - (stat_vector <=> %s) AS similarity
             FROM player_stats_vectorized
-            WHERE playerid != %s AND season = %s
+            WHERE playerid != %s
             ORDER BY stat_vector <=> %s
             LIMIT %s
-        """, (player_vector, playerid, season, player_vector, top_k))
+        """, (player_vector, playerid, player_vector, top_k))
 
         similar_players = cursor.fetchall()
         cursor.close()
@@ -38,6 +38,4 @@ def find_similar_players(playerid, season, top_k=5):
 
     else:
         print("Failed to perform statline similarity search: No connection to database")
-
-print(find_similar_players("butleji01", 2025))
 
