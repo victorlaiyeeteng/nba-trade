@@ -16,8 +16,3 @@
   <li>aws lambda - backend calls and ml inference</li>
   <li>hosted on netlify</li>
 </ul>
-
-
-todo:
-- correct live_stats script to account for players whose real stats are from "2TM", "3TM"
-- rerun trade outcomes and player_stats_vectorized
