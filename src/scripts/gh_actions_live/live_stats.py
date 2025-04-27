@@ -1,9 +1,20 @@
 from datetime import datetime, timedelta
+import pickle
 import requests
+import pandas as pd
 import os
 import psycopg2
 from ..scrape_live_games import scrape_today_games
 from src.db import connect_supabase, close_connection_supabase
+from src.scripts.player_stats_vectorized import preprocess_player_stats, vectorize_player_stats, feature_columns
+
+def get_dates(d):
+    year, month, day = d.year, d.month, d.day
+    if month >= 10:
+        season = year + 1
+    else: 
+        season = year
+    return year, month, day, season
 
 
 NBA_API = "http://rest.nbaapi.com/api"
@@ -30,36 +41,71 @@ if d <= min(regular_season_cutoff_date, current_date):
         cursor = conn.cursor()
         print("Successfully connected to Supabase DB")
         while d <= min(regular_season_cutoff_date, current_date):
-            year, month, day = d.year, d.month, d.day
-            _, teams_played = scrape_today_games(day, month, year)
-            print(f"Updating for {year}-{month}-{day}: {len(teams_played)} teams to update...")
-            
-            for team in teams_played:
-                response = requests.get(f"{NBA_API}/playerdatatotals/query?season={year}&team={team}&pageSize=30")
-                if response.status_code != 200:
-                    raise Exception(f"Failed to fetch data from API: {response.status_code}")
-                data = response.json()
-                if not data:
-                    raise Exception("No data found in the API response")
-                for player in data:
-                    columns = ", ".join(player.keys())
-                    team = player.get("team")
-                    if team == "TOT" or team == "2TM" or team == "3TM":
-                        continue
-                    insert_query = "INSERT INTO player_stats ({}) VALUES ({}) ON CONFLICT (playerId, season) DO UPDATE SET {}".format(
-                            columns,
-                            ", ".join(["%s"] * len(player)), 
-                            ", ".join([f"{key} = EXCLUDED.{key}" for key in player.keys()])
-                        )
-                    values = tuple(player.values())
-                    try:
-                        cursor.execute(insert_query, values)
-                    except psycopg2.Error as e:
-                        print(f"Error inserting data for player {player.get('player_id')}: {e}")
-                print(f"\tUpdated for {team}")
+            year, month, day, season = get_dates(d)
+            response = requests.get(f"{NBA_API}/playerdatatotals/query?season={year}&pageSize=1000")
+            if response.status_code != 200:
+                raise Exception(f"Failed to fetch data from API: {response.status_code}")
+            data = response.json()
+            if not data:
+                raise Exception("No data found in the API response")
+            data.sort(key=lambda x: x['id'])
+
+            print(f"Updating for {year}-{month}-{day}: {len(data)} players to update...")
+
+            for player in data:
+                columns = ", ".join(player.keys())
+                team = player.get("team")
+                values = tuple(player.values())
+                insert_query = f"""
+                    INSERT INTO player_stats ({columns})
+                    VALUES ({", ".join(['%s'] * len(player))})
+                    ON CONFLICT (playerid, season) DO UPDATE SET
+                """
+                if team in ["TOT", "2TM", "3TM"]:
+                    update_clause = ", ".join([f"{key} = EXCLUDED.{key}" for key in player.keys()])
+                else:
+                    update_clause = "team = EXCLUDED.team"
+                insert_query += update_clause
+
+                try:
+                    cursor.execute(insert_query, values)
+                except psycopg2.Error as e:
+                    print(f"Error inserting data for player {player.get('player_id')}: {e}")
 
             missing_dates.append(d.strftime("%Y-%m-%d %H:%M:%S UTC"))
             d += timedelta(days=1)
+        
+        print(f"Completed updating player regular stats (total: {len(data)})")
+
+        _, _, _, season = get_dates(d)
+        with open("scaler_params.pkl", "rb") as f:
+            scaler_params = pickle.load(f)
+        mean = scaler_params['mean']
+        scale = scaler_params['scale']
+        query = """SELECT
+            position, age, games, gamesStarted, minutesPg, fieldGoals, fieldAttempts, fieldPercent,
+            threeFg, threeAttempts, threePercent, twoFg, twoAttempts, twoPercent, effectFgPercent,
+            ft, ftAttempts, ftPercent, offensiveRb, defensiveRb, totalRb, assists,
+            steals, blocks, turnovers, personalFouls, points,
+            season, playerId FROM player_stats WHERE season={}
+        """.format(season)
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        df = pd.DataFrame(rows, columns=feature_columns + ["season", "playerId"])
+        df = preprocess_player_stats(df)
+        vectors = vectorize_player_stats(df, mean, scale)
+        for i, row in df.iterrows():
+            playerid = row['playerId']
+            season = row['season']
+            vector = vectors[i].tolist()
+            cursor.execute("""
+                INSERT INTO player_stats_vectorized (playerId, season, stat_vector)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (playerId, season)
+                DO UPDATE SET stat_vector = EXCLUDED.stat_vector
+            """, (playerid, season, vector))
+        print(f"Completed updating player statline vectors (total: {df.shape[0]})")
+
         conn.commit()
         cursor.close()
         close_connection_supabase(conn)
