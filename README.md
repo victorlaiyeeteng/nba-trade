@@ -6,13 +6,13 @@
 - [x] vectorizing player stats
 - [ ] query player stats and similar players by statline vectors
 - [ ] supervised learning of trade outcome
-- [ ] hosting on netlify
+- [ ] hosting on render
 
 
 <p>technologies</p>
 <ul>
   <li>supabase - postgres</li>
   <li>github actions - data pipelines</li>
-  <li>aws lambda - backend calls and ml inference</li>
-  <li>hosted on netlify</li>
+  <li>fastapi - backend calls and ml inference</li>
+  <li>hosted on render</li>
 </ul>
