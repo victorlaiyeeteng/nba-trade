@@ -72,6 +72,6 @@ async def search_players(query: str, season: int):
     """
     results = await database.fetch_all(
         query=search_query, 
-        values={"query": query, "season": season}
+        values={"query": f"%{query.lower()}%", "season": season}
     )
     return [dict(row) for row in results]
