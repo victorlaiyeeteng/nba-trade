@@ -60,3 +60,18 @@ async def get_player_stats(playerid: str, season: int, top_k: int = 5):
         "player_stats": player_stat_results, 
         "similar_players": similar_player_results
     }
+
+@app.get("/search_players")
+async def search_players(query: str, season: int):
+    search_query = """
+    SELECT DISTINCT playerid, playername, team, season
+    FROM player_stats
+    WHERE LOWER(playername) LIKE LOWER(:query)
+    AND season = :season
+    LIMIT 5;
+    """
+    results = await database.fetch_all(
+        query=search_query, 
+        values={"query": query, "season": season}
+    )
+    return [dict(row) for row in results]
