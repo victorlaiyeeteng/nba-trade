@@ -1,1 +1,1 @@
-from .setup_db import connect, close_connection, connect_supabase, close_connection_supabase
+from .setup_db import connect, close_connection, connect_supabase, close_connection_supabase, connect_supabase_with_fastapi, disconnect_supabase_with_fastapi

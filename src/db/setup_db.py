@@ -1,6 +1,7 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
+import databases
 
 load_dotenv()
 
@@ -11,6 +12,8 @@ DB_HOST = os.getenv("POSTGRES_HOST")
 DB_PORT = os.getenv("POSTGRES_PORT")
 
 SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL")
+database = databases.Database(SUPABASE_DB_URL)
+
 
 def connect():
     try:
@@ -44,4 +47,11 @@ def close_connection_supabase(conn):
         print("Supabase Database connection closed")
     else:
         print("No supabase connection to close")
+
+async def connect_supabase_with_fastapi():
+    await database.connect()
+
+async def disconnect_supabase_with_fastapi():
+    await database.disconnect()
+
 
