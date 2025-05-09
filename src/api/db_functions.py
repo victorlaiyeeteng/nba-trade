@@ -16,7 +16,7 @@ async def fetch_player_vector(database, playerid, season):
 
 async def fetch_similar_players(database, playerid, player_vector, top_k):
     get_similar_players = """
-    SELECT playerid, season, 1 - (stat_vector <=> :player_vector) AS similarity
+    SELECT playerid, playername, season, 1 - (stat_vector <=> :player_vector) AS similarity
     FROM player_stats_vectorized
     WHERE playerid != :playerid
     ORDER BY stat_vector <=> :player_vector
