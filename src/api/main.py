@@ -1,8 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
-from dotenv import load_dotenv
-import databases
 from src.api.db_functions import fetch_player_stats, fetch_player_vector, fetch_similar_players, fetch_player_by_name
 from src.db import connect_supabase_with_fastapi, disconnect_supabase_with_fastapi
 from src.db.setup_db import database
@@ -45,3 +42,7 @@ async def get_player_stats(playerid: str, season: int, top_k: int = 5):
 async def search_players(query: str, season: int):
     results = await fetch_player_by_name(database, query, season)
     return [dict(row) for row in results]
+
+@app.get("/ping")
+async def ping():
+    return {"message": "pong"}
