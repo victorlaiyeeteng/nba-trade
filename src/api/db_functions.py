@@ -16,15 +16,40 @@ async def fetch_player_vector(database, playerid, season):
 
 async def fetch_similar_players(database, playerid, player_vector, top_k):
     get_similar_players = """
-    SELECT playerid, playername, season, 1 - (stat_vector <=> :player_vector) AS similarity
+    SELECT playerid, season, 1 - (stat_vector <=> :player_vector) AS similarity
     FROM player_stats_vectorized
     WHERE playerid != :playerid
     ORDER BY stat_vector <=> :player_vector
     LIMIT :top_k
     """
-    return await database.fetch_all(
+
+    similar_players = await database.fetch_all(
         query=get_similar_players, 
-        values={"playerid": playerid, "player_vector": player_vector, "top_k": top_k})
+        values={"playerid": playerid, "player_vector": player_vector, "top_k": top_k}
+    )
+    
+    player_ids = [player["playerid"] for player in similar_players]
+    if not player_ids:
+        return []
+
+    get_player_names = """
+    SELECT DISTINCT playerid, playername
+    FROM player_stats
+    WHERE playerid = ANY(:player_ids)
+    """
+    
+    player_names = await database.fetch_all(
+        query=get_player_names, 
+        values={"player_ids": player_ids}
+    )
+
+    player_name_map = {player["playerid"]: player["playername"] for player in player_names}
+
+    similar_players_dicts = [dict(player) for player in similar_players]
+    for player in similar_players_dicts:
+        player["playername"] = player_name_map.get(player["playerid"], None)
+    
+    return similar_players_dicts
 
 async def fetch_player_by_name(database, sub_name, season):
     search_query = """
