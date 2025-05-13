@@ -1,18 +1,13 @@
-## nba trade predictor
+### ledata james
 
-- [x] past seasons' player stats
-- [x] augment player trade data at e-o-season
-- [x] real-time update of current player stats
-- [x] vectorizing player stats
-- [ ] query player stats and similar players by statline vectors
-- [ ] supervised learning of trade outcome
-- [ ] hosting on render
+search up your favourite player (and season)
+and
+view real-time updated stats, similar player analysis, prediction of what happens to him next season (traded/waived/resigned)
 
-
-<p>technologies</p>
-<ul>
-  <li>supabase - postgres</li>
-  <li>github actions - data pipelines</li>
-  <li>fastapi - backend calls and ml inference</li>
-  <li>hosted on render</li>
-</ul>
+<u>technologies/methods</u>
+ivfflat - similarity player search
+randomforestclassifier - trade prediction
+supabase - postgres
+github actions - data pipelines
+fastapi - backend calls and ml inference
+hosted on render
