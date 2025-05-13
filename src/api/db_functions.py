@@ -5,7 +5,7 @@ async def fetch_player_stats(database, playerid, season):
     SELECT * FROM player_stats
     WHERE playerid = :playerid and season = :season;
     """
-    return await database.fetch_all(query=get_player_stat_query, values={"playerid": playerid, "season": season})
+    return await database.fetch_one(query=get_player_stat_query, values={"playerid": playerid, "season": season})
     
 async def fetch_player_vector(database, playerid, season):
     get_player_stat_vectorized_query = """

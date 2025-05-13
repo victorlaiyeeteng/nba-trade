@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.api.db_functions import fetch_player_stats, fetch_player_vector, fetch_similar_players, fetch_player_by_name
+from src.api.trade_predictor import predict_trade
 from src.db import connect_supabase_with_fastapi, disconnect_supabase_with_fastapi
 from src.db.setup_db import database
+import pandas as pd
 
 app = FastAPI()
 
@@ -42,6 +44,15 @@ async def get_player_stats(playerid: str, season: int, top_k: int = 5):
 async def search_players(query: str, season: int):
     results = await fetch_player_by_name(database, query, season)
     return [dict(row) for row in results]
+
+@app.get("/predict_trade")
+async def get_player_trade_prediction(playerid: str, season: int):
+    player_stat_results = await fetch_player_stats(database, playerid, season)
+    prediction, outcome_prob = await predict_trade(player_stat_results)
+    return {
+        "prediction": prediction, 
+        "outcome_prob": outcome_prob
+    }
 
 @app.get("/ping")
 async def ping():
