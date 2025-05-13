@@ -4,13 +4,12 @@ from src.api.db_functions import fetch_player_stats, fetch_player_vector, fetch_
 from src.api.trade_predictor import predict_trade
 from src.db import connect_supabase_with_fastapi, disconnect_supabase_with_fastapi
 from src.db.setup_db import database
-import pandas as pd
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://ledata-james.netlify.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
